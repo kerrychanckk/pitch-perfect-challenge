@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pitch Perfect Challenge - Grade 7-9 Music</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { color: #2c3e50; }
+        .game-container {
+            background: white;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .staff-container {
+            position: relative;
+            height: 150px;
+            margin-bottom: 20px;
+            border-top: 1px solid transparent; /* spacer */
+        }
+        .line {
+            background-color: black;
+            height: 2px;
+            width: 100%;
+            margin-top: 20px;
+            position: relative;
+        }
+        .note {
+            width: 24px;
+            height: 18px;
+            background-color: black;
+            border-radius: 50%;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: -10px; /* Adjust dynamically */
+        }
+        .note::after { /* The stem of the note */
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 45px;
+            background-color: black;
+            right: 0;
+            bottom: 5px;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background-color: #2980b9; }
+        button:active { transform: scale(0.98); }
+        #feedback {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            height: 30px;
+        }
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 30px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎵 Pitch Perfect Challenge</h1>
+    <p>Identify the note displayed on the staff!</p>
+
+    <div class="game-container">
+        <div class="score-board">
+            <span id="score">Score: 0</span>
+            <span id="level">Level: Form 1</span>
+        </div>
+
+        <!-- Simplified Visual Representation of a Staff -->
+        <div class="staff-container" id="staff">
+            <div style="position: relative; top: 40px;">
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+                <!-- The Note (Position will be changed by JS) -->
+                <div id="target-note" class="note" style="top: 44px;"></div> 
+            </div>
+        </div>
+
+        <div id="feedback">Press Start!</div>
+
+        <div class="controls">
+            <button onclick="checkAnswer('C')">C</button>
+            <button onclick="checkAnswer('D')">D</button>
+            <button onclick="checkAnswer('E')">E</button>
+            <button onclick="checkAnswer('F')">F</button>
+            <button onclick="checkAnswer('G')">G</button>
+            <button onclick="checkAnswer('A')">A</button>
+            <button onclick="checkAnswer('B')">B</button>
+        </div>
+        
+        <br>
+        <button style="background-color: #27ae60; width: 100%;" onclick="nextNote()">Start / Next Note</button>
+    </div>
+
+    <script>
+        const notes = [
+            { name: 'E', top: '88px' }, // Line 1 (Bottom)
+            { name: 'F', top: '77px' }, // Space 1
+            { name: 'G', top: '66px' }, // Line 2
+            { name: 'A', top: '55px' }, // Space 2
+            { name: 'B', top: '44px' }, // Line 3
+            { name: 'C', top: '33px' }, // Space 3
+            { name: 'D', top: '22px' }, // Line 4
+            { name: 'E', top: '11px' }, // Space 4
+            { name: 'F', top: '0px' }   // Line 5 (Top)
+        ];
+
+        [...](asc_slot://start-slot-7)let currentNote = null;
+        let score = 0;
+
+        [...](asc_slot://start-slot-9)function nextNote() {
+            // Randomly select a note
+            const randomIndex = Math.floor(Math.random() * notes.length);
+            currentNote = notes[randomIndex];
+
+            [...](asc_slot://start-slot-11)// Update visual position
+            const noteElement = document.getElementById('target-note');
+            noteElement.style.top = currentNote.top;
+            
+            // Reset feedback
+            document.getElementById('feedback').textContent = "What note is this?";
+            document.getElementById('feedback').style.color = "#333";
+        }
+
+        function checkAnswer(guess) {
+            if (!currentNote) return;
+
+            const feedback = document.getElementById('feedback');
+            if (guess === currentNote.name) {
+                feedback.textContent = "✨ Correct! Great ear!";
+                feedback.style.color = "#27ae60";
+                score += 10;
+                playTone(); // Simulated sound feedback
+                setTimeout(nextNote, 1000); // Auto load next note
+            } else {
+                feedback.textContent = "❌ Try again!";
+                feedback.style.color = "#c0392b";
+                score = Math.max(0, score - 5);
+            }
+            document.getElementById('score').textContent = "Score: " + score;
+        }
+
+        [...](asc_slot://start-slot-13)// Simple synthesizer for sound feedback
+        function playTone() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(440, ctx.currentTime); // A4 default, just for feedback
+            osc.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.1);
+        }
+    </script>
+</body>
+</html>
